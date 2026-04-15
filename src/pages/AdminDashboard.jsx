@@ -161,9 +161,14 @@ export default function AdminDashboard() {
               <h2 className="text-xl font-bold text-gold">تفاصيل الطلب #{selected.id}</h2>
               <button onClick={() => setSelected(null)} className="btn-secondary text-sm">إغلاق</button>
             </div>
+            {selected.profile_photo_url && (
+              <div className="flex justify-center mb-4">
+                <img src={selected.profile_photo_url} alt={selected.full_name} className="w-28 h-28 rounded-full object-cover border-2 border-gold/40" />
+              </div>
+            )}
             <Row label="الاسم الكامل" value={selected.full_name} />
+            <Row label="تاريخ الميلاد" value={selected.date_of_birth ? new Date(selected.date_of_birth).toLocaleDateString('ar-EG') : null} />
             <Row label="العمر" value={selected.age} />
-            <Row label="الحالة الاجتماعية" value={selected.marital_status === 'married' ? 'متزوج' : 'أعزب'} />
             <Row label="المدينة" value={selected.city} />
             <Row label="البريد الإلكتروني" value={selected.email} />
             <Row label="رقم الجوال" value={selected.mobile_number} />

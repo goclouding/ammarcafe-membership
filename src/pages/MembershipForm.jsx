@@ -1,7 +1,60 @@
-import { useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import Logo from '../components/Logo'
+
+const MONTHS_AR = [
+  'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+  'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
+]
+
+function DobPicker({ value, onChange }) {
+  const parts = value ? value.split('-') : ['', '', '']
+  const [y, setY] = useState(parts[0] || '')
+  const [m, setM] = useState(parts[1] ? String(Number(parts[1])) : '')
+  const [d, setD] = useState(parts[2] ? String(Number(parts[2])) : '')
+
+  const currentYear = new Date().getFullYear()
+  const years = Array.from({ length: 100 }, (_, i) => currentYear - i)
+
+  const daysInMonth = (yy, mm) => {
+    if (!yy || !mm) return 31
+    return new Date(Number(yy), Number(mm), 0).getDate()
+  }
+  const maxDay = daysInMonth(y, m)
+  const days = Array.from({ length: maxDay }, (_, i) => i + 1)
+
+  useEffect(() => {
+    if (d && m && y) {
+      const cap = daysInMonth(y, m)
+      const dayNum = Math.min(Number(d), cap)
+      onChange(`${y}-${String(m).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`)
+    } else {
+      onChange('')
+    }
+  }, [d, m, y])
+
+  useEffect(() => {
+    if (d && Number(d) > maxDay) setD(String(maxDay))
+  }, [maxDay])
+
+  return (
+    <div className="grid grid-cols-3 gap-2">
+      <select className="input" value={d} onChange={(e) => setD(e.target.value)}>
+        <option value="">اليوم</option>
+        {days.map(n => <option key={n} value={n}>{n}</option>)}
+      </select>
+      <select className="input" value={m} onChange={(e) => setM(e.target.value)}>
+        <option value="">الشهر</option>
+        {MONTHS_AR.map((name, i) => <option key={i} value={i + 1}>{name}</option>)}
+      </select>
+      <select className="input" value={y} onChange={(e) => setY(e.target.value)}>
+        <option value="">السنة</option>
+        {years.map(n => <option key={n} value={n}>{n}</option>)}
+      </select>
+    </div>
+  )
+}
 
 const initial = {
   full_name: '',
@@ -164,10 +217,10 @@ export default function MembershipForm() {
       <main className="flex-1 max-w-3xl mx-auto w-full px-4 pb-12">
         {/* Stepper */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
+          <div className="flex items-start">
             {STEPS.map((label, i) => (
-              <div key={label} className="flex-1 flex items-center">
-                <div className="flex flex-col items-center flex-1">
+              <Fragment key={label}>
+                <div className="flex flex-col items-center shrink-0 w-32">
                   <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold border-2 transition ${
                     i < step ? 'bg-gold text-black border-gold' :
                     i === step ? 'bg-gold/20 text-gold border-gold' :
@@ -175,12 +228,12 @@ export default function MembershipForm() {
                   }`}>
                     {i < step ? '✓' : i + 1}
                   </div>
-                  <div className={`mt-2 text-xs text-center max-w-[9rem] ${i === step ? 'text-gold' : 'text-muted'}`}>{label}</div>
+                  <div className={`mt-2 text-xs text-center ${i === step ? 'text-gold' : 'text-muted'}`}>{label}</div>
                 </div>
                 {i < STEPS.length - 1 && (
-                  <div className={`h-px flex-1 mx-2 ${i < step ? 'bg-gold' : 'bg-white/10'}`} />
+                  <div className={`h-px flex-1 mt-[18px] mx-2 ${i < step ? 'bg-gold' : 'bg-white/10'}`} />
                 )}
-              </div>
+              </Fragment>
             ))}
           </div>
           <div className="mt-4 h-1 bg-white/5 rounded-full overflow-hidden">
@@ -205,7 +258,7 @@ export default function MembershipForm() {
                 </div>
                 <div>
                   <label className="label">تاريخ الميلاد</label>
-                  <input className="input" type="date" dir="ltr" value={v.date_of_birth} onChange={set('date_of_birth')} max={new Date().toISOString().slice(0, 10)} />
+                  <DobPicker value={v.date_of_birth} onChange={(val) => setV(s => ({ ...s, date_of_birth: val }))} />
                   <Err name="date_of_birth" />
                 </div>
                 <div>

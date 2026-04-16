@@ -173,7 +173,10 @@ export default function MembershipForm() {
         upsert: false,
         contentType: v.profile_photo.type || undefined,
       })
-      if (up.error) throw up.error
+      if (up.error) {
+        up.error.message = `[STORAGE UPLOAD] ${up.error.message}`
+        throw up.error
+      }
       const { data: pub } = supabase.storage.from('profile-photos').getPublicUrl(path)
 
       const { error } = await supabase.from('membership_applications').insert({
@@ -193,7 +196,10 @@ export default function MembershipForm() {
         profile_photo_url: pub.publicUrl,
         status: 'pending',
       })
-      if (error) throw error
+      if (error) {
+        error.message = `[DB INSERT] ${error.message}`
+        throw error
+      }
       navigate(`/success?name=${encodeURIComponent(v.full_name.trim())}`)
     } catch (err) {
       console.error(err)

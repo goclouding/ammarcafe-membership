@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import Logo from '../components/Logo'
 
@@ -39,6 +40,9 @@ export default function AdminLogin() {
             {loading ? '...جاري الدخول' : 'تسجيل الدخول'}
           </button>
         </form>
+        <div className="text-center mt-4">
+          <Link to="/admin/forgot-password" className="text-gold text-sm hover:underline">نسيت كلمة المرور؟</Link>
+        </div>
       </div>
     </div>
   )

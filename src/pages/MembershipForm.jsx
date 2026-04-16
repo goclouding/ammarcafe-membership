@@ -197,7 +197,8 @@ export default function MembershipForm() {
       navigate(`/success?name=${encodeURIComponent(v.full_name.trim())}`)
     } catch (err) {
       console.error(err)
-      setServerError('حدث خطأ أثناء إرسال الطلب. حاول مرة أخرى.')
+      const msg = err?.message || err?.error_description || 'خطأ غير معروف'
+      setServerError(`حدث خطأ أثناء إرسال الطلب: ${msg}`)
     } finally {
       setSubmitting(false)
     }
